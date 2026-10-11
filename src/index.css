@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+@theme {
+  /* Gold primary #FCC52D — used for fills/badges/gradients, paired with
+     ink (dark) text. brand-700 is a darkened shade of the same gold,
+     used for button hover so text-ink stays readable on every state. */
+  --color-brand-50: #fff3d6;
+  --color-brand-100: #ffe9b3;
+  --color-brand-400: #f0d580;
+  --color-brand-500: #fcc52d;
+  --color-brand-600: #fcc52d;
+  --color-brand-700: #e0ac1e;
+
+  /* Maroon accent #661913 — used for readable text/links on white. */
+  --color-accent: #661913;
+  --color-accent-dark: #4a120e;
+
+  /* Olive-gold secondary #726820 */
+  --color-secondary: #726820;
+
+  /* Deep navy ink #001220 — dark text on gold, dark surfaces. */
+  --color-ink: #001220;
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
+  background: #fafaf9;
+  color: #1c1917;
+}
+
+* {
+  box-sizing: border-box;
+}
