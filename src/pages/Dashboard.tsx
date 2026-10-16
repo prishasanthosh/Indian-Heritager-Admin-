@@ -172,7 +172,7 @@ export function Dashboard() {
       ...overview.orders.map((order) => ({
         id: `order-${order._id}`,
         title: `Order #${order._id.slice(-8).toUpperCase()}`,
-        detail: `Order · ${typeof order.user === "object" ? order.user.name : "Customer"}`,
+        detail: `Order · ${typeof order.user === "object" && order.user !== null ? order.user.name : "Customer"}`,
         date: order.createdAt,
         status: order.status,
         href: "/orders",
