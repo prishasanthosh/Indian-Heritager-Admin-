@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { api } from "../lib/api";
 import type { NewsletterSubscriber } from "../lib/types";
+import { GeneratePdfButton } from "../components/GeneratePdfButton";
+import { formatDateTime } from "../lib/pdf";
 
 export function Newsletter() {
   const [subscribers, setSubscribers] = useState<NewsletterSubscriber[]>([]);
@@ -14,7 +16,17 @@ export function Newsletter() {
     <div className="p-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold text-slate-900">Newsletter subscribers</h1>
-        <span className="text-sm text-slate-500">{subscribers.length} total</span>
+        <div className="flex items-center gap-3">
+          <GeneratePdfButton
+            title="Newsletter Subscribers"
+            disabled={loading}
+            columns={[
+              { label: "Email", value: subscribers.map((subscriber) => subscriber.email) },
+              { label: "Subscribed", value: subscribers.map((subscriber) => formatDateTime(subscriber.createdAt)) },
+            ]}
+          />
+          <span className="text-sm text-slate-500">{subscribers.length} total</span>
+        </div>
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white divide-y divide-slate-100">
@@ -23,7 +35,7 @@ export function Newsletter() {
         {subscribers.map((s) => (
           <div key={s._id} className="flex items-center justify-between px-5 py-3">
             <span className="text-sm font-medium text-slate-800">{s.email}</span>
-            <span className="text-xs text-slate-400">{new Date(s.createdAt).toLocaleDateString("en-IN")}</span>
+            <span className="text-xs text-slate-400">{formatDateTime(s.createdAt)}</span>
           </div>
         ))}
       </div>

@@ -3,6 +3,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { api, getErrorMessage } from "../lib/api";
 import type { Project } from "../lib/types";
+import { GeneratePdfButton } from "../components/GeneratePdfButton";
 
 export function Projects() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -53,7 +54,18 @@ export function Projects() {
 
   return (
     <div className="p-8 max-w-xl">
-      <h1 className="text-xl font-bold text-slate-900 mb-2">Donation purposes</h1>
+      <div className="mb-2 flex items-center justify-between gap-4">
+        <h1 className="text-xl font-bold text-slate-900">Donation purposes</h1>
+        <GeneratePdfButton
+          title="Donation Purposes"
+          columns={[
+            { label: "Name", value: projects.map((project) => project.name) },
+            { label: "Slug", value: projects.map((project) => project.slug) },
+            { label: "Status", value: projects.map((project) => project.isActive ? "Active" : "Hidden") },
+            { label: "Sort order", value: projects.map((project) => project.sortOrder) },
+          ]}
+        />
+      </div>
       <p className="text-sm text-slate-500 mb-6">Drives the "Donation purpose" dropdown on the public /give page — only active purposes appear there.</p>
 
       <form onSubmit={create} className="flex gap-2 mb-6">

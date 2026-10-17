@@ -3,6 +3,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { api, getErrorMessage } from "../lib/api";
 import type { Category } from "../lib/types";
+import { GeneratePdfButton } from "../components/GeneratePdfButton";
 
 export function Categories() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -44,7 +45,17 @@ export function Categories() {
 
   return (
     <div className="p-8 max-w-xl">
-      <h1 className="text-xl font-bold text-slate-900 mb-6">Categories</h1>
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <h1 className="text-xl font-bold text-slate-900">Categories</h1>
+        <GeneratePdfButton
+          title="Categories"
+          columns={[
+            { label: "Name", value: categories.map((category) => category.name) },
+            { label: "Slug", value: categories.map((category) => category.slug) },
+            { label: "Description", value: categories.map((category) => category.description || "—") },
+          ]}
+        />
+      </div>
 
       <form onSubmit={create} className="flex gap-2 mb-6">
         <input

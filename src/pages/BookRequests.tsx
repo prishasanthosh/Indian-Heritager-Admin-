@@ -3,6 +3,8 @@ import { toast } from "sonner";
 import { FileText, Mail, Phone } from "lucide-react";
 import { api, getErrorMessage } from "../lib/api";
 import type { BookRequest, BookRequestStatus } from "../lib/types";
+import { GeneratePdfButton } from "../components/GeneratePdfButton";
+import { formatDateTime } from "../lib/pdf";
 
 const statuses: BookRequestStatus[] = ["pending", "approved", "fulfilled", "rejected"];
 
@@ -42,12 +44,35 @@ export function BookRequests() {
     <div className="p-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold text-slate-900">Book Requests — Project Vidhyadhanam</h1>
-        <select value={filter} onChange={(e) => setFilter(e.target.value)} className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm">
-          <option value="">All statuses</option>
-          {statuses.map((s) => (
-            <option key={s} value={s}>{s}</option>
-          ))}
-        </select>
+        <div className="flex items-center gap-2">
+          <GeneratePdfButton
+            title="Book Requests"
+            disabled={loading}
+            columns={[
+              { label: "Submitted", value: requests.map((request) => formatDateTime(request.createdAt)) },
+              { label: "Student", value: requests.map((request) => request.student.fullName) },
+              { label: "Email", value: requests.map((request) => request.student.email) },
+              { label: "Phone", value: requests.map((request) => request.student.phone) },
+              { label: "Institution", value: requests.map((request) => request.student.institutionName) },
+              { label: "Course / class", value: requests.map((request) => request.student.courseClass) },
+              { label: "Year / semester", value: requests.map((request) => request.student.yearSemester) },
+              { label: "Address", value: requests.map((request) => request.student.address) },
+              { label: "Book", value: requests.map((request) => `${request.book.name}${request.book.author ? ` by ${request.book.author}` : ""}`) },
+              { label: "Subject", value: requests.map((request) => request.book.subject) },
+              { label: "Edition", value: requests.map((request) => request.book.edition || "—") },
+              { label: "Quantity", value: requests.map((request) => request.book.quantityRequired) },
+              { label: "Reason", value: requests.map((request) => request.reason) },
+              { label: "Status", value: requests.map((request) => request.status) },
+              { label: "Admin note", value: requests.map((request) => request.adminNote || "—") },
+            ]}
+          />
+          <select value={filter} onChange={(e) => setFilter(e.target.value)} className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm">
+            <option value="">All statuses</option>
+            {statuses.map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {loading && <div className="text-slate-400 text-sm">Loading…</div>}
@@ -76,7 +101,8 @@ export function BookRequests() {
 
             <div className="mt-4 grid gap-4 md:grid-cols-2 text-sm text-slate-600">
               <div className="space-y-1">
-                <div className="font-medium text-slate-800">{r.student.fullName}</div>
+              <div className="text-xs text-slate-400">Submitted: {formatDateTime(r.createdAt)}</div>
+              <div className="font-medium text-slate-800">{r.student.fullName}</div>
                 <div className="flex items-center gap-1.5"><Mail className="h-3.5 w-3.5" /> <a href={`mailto:${r.student.email}`} className="hover:underline">{r.student.email}</a></div>
                 <div className="flex items-center gap-1.5"><Phone className="h-3.5 w-3.5" /> <a href={`tel:${r.student.phone}`} className="hover:underline">{r.student.phone}</a></div>
                 <div>{r.student.institutionName} · {r.student.courseClass} · {r.student.yearSemester}</div>

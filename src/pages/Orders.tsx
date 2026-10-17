@@ -2,6 +2,8 @@ import { Fragment, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { api, getErrorMessage } from "../lib/api";
 import type { Order, OrderStatus } from "../lib/types";
+import { GeneratePdfButton } from "../components/GeneratePdfButton";
+import { formatDateTime } from "../lib/pdf";
 
 const statuses: OrderStatus[] = ["pending", "processing", "shipped", "delivered", "cancelled"];
 
@@ -43,16 +45,33 @@ export function Orders() {
     <div className="p-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold text-slate-900">Orders</h1>
-        <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm"
-        >
-          <option value="">All statuses</option>
-          {statuses.map((s) => (
-            <option key={s} value={s}>{s}</option>
-          ))}
-        </select>
+        <div className="flex items-center gap-2">
+          <GeneratePdfButton
+            title="Orders"
+            disabled={loading}
+            columns={[
+              { label: "Order", value: orders.map((order) => `#${order._id.slice(-8).toUpperCase()}`) },
+              { label: "Placed", value: orders.map((order) => formatDateTime(order.createdAt)) },
+              { label: "Customer", value: orders.map((order) => typeof order.user === "object" ? order.user.name : "—") },
+              { label: "Email", value: orders.map((order) => typeof order.user === "object" ? order.user.email : "—") },
+              { label: "Items", value: orders.map((order) => order.items.map((item) => `${item.name} × ${item.quantity}`).join(", ")) },
+              { label: "Total (INR)", value: orders.map((order) => order.total) },
+              { label: "Payment", value: orders.map((order) => `${order.paymentMethod} · ${order.paymentStatus}`) },
+              { label: "Status", value: orders.map((order) => order.status) },
+              { label: "Shipping address", value: orders.map((order) => `${order.shippingAddress.fullName}, ${order.shippingAddress.line1}${order.shippingAddress.line2 ? `, ${order.shippingAddress.line2}` : ""}, ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.postalCode}, ${order.shippingAddress.phone}`) },
+            ]}
+          />
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm"
+          >
+            <option value="">All statuses</option>
+            {statuses.map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white overflow-x-auto">

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { api, getErrorMessage } from "../lib/api";
 import type { VolunteerApplication } from "../lib/types";
+import { GeneratePdfButton } from "../components/GeneratePdfButton";
+import { formatDateTime } from "../lib/pdf";
 
 const statusColor: Record<VolunteerApplication["status"], string> = {
   new: "bg-amber-100 text-amber-700",
@@ -32,7 +34,23 @@ export function VolunteerApplications() {
 
   return (
     <div className="p-8">
-      <h1 className="text-xl font-bold text-slate-900 mb-6">Volunteer applications</h1>
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <h1 className="text-xl font-bold text-slate-900">Volunteer applications</h1>
+        <GeneratePdfButton
+          title="Volunteer Applications"
+          disabled={loading}
+          columns={[
+            { label: "Submitted", value: applications.map((application) => formatDateTime(application.createdAt)) },
+            { label: "Name", value: applications.map((application) => application.name) },
+            { label: "Email", value: applications.map((application) => application.email) },
+            { label: "Phone", value: applications.map((application) => application.phone) },
+            { label: "Availability", value: applications.map((application) => application.availability) },
+            { label: "Skills", value: applications.map((application) => application.skills || "—") },
+            { label: "Message", value: applications.map((application) => application.message || "—") },
+            { label: "Status", value: applications.map((application) => application.status) },
+          ]}
+        />
+      </div>
 
       <div className="rounded-xl border border-slate-200 bg-white overflow-x-auto">
         <table className="w-full text-sm">
@@ -42,13 +60,14 @@ export function VolunteerApplications() {
               <th className="text-left px-5 py-3 font-medium">Contact</th>
               <th className="text-left px-5 py-3 font-medium">Availability</th>
               <th className="text-left px-5 py-3 font-medium">Skills</th>
+              <th className="text-left px-5 py-3 font-medium">Submitted</th>
               <th className="text-left px-5 py-3 font-medium">Status</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {loading && <tr><td colSpan={5} className="px-5 py-8 text-center text-slate-400">Loading…</td></tr>}
+            {loading && <tr><td colSpan={6} className="px-5 py-8 text-center text-slate-400">Loading…</td></tr>}
             {!loading && applications.length === 0 && (
-              <tr><td colSpan={5} className="px-5 py-8 text-center text-slate-400">No applications yet.</td></tr>
+              <tr><td colSpan={6} className="px-5 py-8 text-center text-slate-400">No applications yet.</td></tr>
             )}
             {applications.map((a) => (
               <tr key={a._id} className="hover:bg-slate-50">
@@ -56,6 +75,7 @@ export function VolunteerApplications() {
                 <td className="px-5 py-3 text-slate-600">{a.email}<br /><span className="text-xs text-slate-400">{a.phone}</span></td>
                 <td className="px-5 py-3 text-slate-600">{a.availability}</td>
                 <td className="px-5 py-3 text-slate-600 max-w-xs truncate">{a.skills || "—"}</td>
+                <td className="px-5 py-3 whitespace-nowrap text-slate-500">{formatDateTime(a.createdAt)}</td>
                 <td className="px-5 py-3">
                   <select
                     value={a.status}

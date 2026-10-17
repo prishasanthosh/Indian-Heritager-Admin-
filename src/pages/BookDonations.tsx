@@ -3,6 +3,8 @@ import { toast } from "sonner";
 import { CalendarDays, CheckCircle2, ImageOff, Mail, MapPin, PackageCheck, Phone, Truck, XCircle } from "lucide-react";
 import { api, getErrorMessage } from "../lib/api";
 import type { BookDonation, BookDonationStatus } from "../lib/types";
+import { GeneratePdfButton } from "../components/GeneratePdfButton";
+import { formatDateTime } from "../lib/pdf";
 
 const statusColor: Record<BookDonationStatus, string> = {
   pending_review: "bg-amber-100 text-amber-700",
@@ -64,12 +66,36 @@ export function BookDonations() {
     <div className="p-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold text-slate-900">Book donations — Project Vidhyadhanam</h1>
-        <select value={filter} onChange={(e) => setFilter(e.target.value)} className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm">
-          <option value="">All statuses</option>
-          <option value="pending_review">Pending review</option>
-          <option value="approved">Approved</option>
-          <option value="rejected">Rejected</option>
-        </select>
+        <div className="flex items-center gap-2">
+          <GeneratePdfButton
+            title="Book Donations"
+            disabled={loading}
+            columns={[
+              { label: "Submitted", value: donations.map((donation) => formatDateTime(donation.createdAt)) },
+              { label: "Donor", value: donations.map((donation) => donation.donor.fullName) },
+              { label: "Email", value: donations.map((donation) => donation.donor.email) },
+              { label: "Phone", value: donations.map((donation) => donation.donor.phone) },
+              { label: "Address", value: donations.map((donation) => `${donation.donor.address}, ${donation.donor.city}, ${donation.donor.state} ${donation.donor.pinCode}`) },
+              { label: "Book", value: donations.map((donation) => donation.book.title) },
+              { label: "Author", value: donations.map((donation) => donation.book.author) },
+              { label: "Publisher / edition", value: donations.map((donation) => [donation.book.publisher, donation.book.edition].filter(Boolean).join(" / ") || "—") },
+              { label: "ISBN", value: donations.map((donation) => donation.book.isbn || "—") },
+              { label: "Subject / category", value: donations.map((donation) => `${donation.book.subject} / ${donation.book.category}`) },
+              { label: "Level / condition", value: donations.map((donation) => `${donation.book.academicLevel} / ${donation.book.condition}`) },
+              { label: "Quantity / language", value: donations.map((donation) => `${donation.book.quantity} / ${donation.book.language}`) },
+              { label: "Delivery", value: donations.map((donation) => donation.deliveryMethod ?? "Not specified") },
+              { label: "Notes", value: donations.map((donation) => donation.additionalNotes || "—") },
+              { label: "Status", value: donations.map((donation) => donation.status) },
+              { label: "Admin note", value: donations.map((donation) => donation.adminNote || "—") },
+            ]}
+          />
+          <select value={filter} onChange={(e) => setFilter(e.target.value)} className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm">
+            <option value="">All statuses</option>
+            <option value="pending_review">Pending review</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
       </div>
 
       {loading && <div className="text-slate-400 text-sm">Loading…</div>}
@@ -92,6 +118,7 @@ export function BookDonations() {
 
             <div className="mt-4 grid gap-4 md:grid-cols-[1fr_auto]">
               <div className="text-sm text-slate-600 space-y-1">
+                <div className="text-xs text-slate-400">Submitted: {formatDateTime(d.createdAt)}</div>
                 <div className="font-medium text-slate-800">{d.donor.fullName}</div>
                 {d.donor.dateOfBirth && (
                   <div className="flex items-center gap-1.5">

@@ -4,6 +4,8 @@ import { Plus, ImageOff, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { api, getErrorMessage } from "../lib/api";
 import type { Product } from "../lib/types";
+import { GeneratePdfButton } from "../components/GeneratePdfButton";
+import { formatDateTime } from "../lib/pdf";
 
 export function Products() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -34,12 +36,29 @@ export function Products() {
     <div className="p-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold text-slate-900">Products</h1>
-        <Link
-          to="/products/new"
-          className="flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-ink hover:bg-brand-700"
-        >
-          <Plus className="h-4 w-4" /> Add product
-        </Link>
+        <div className="flex items-center gap-2">
+          <GeneratePdfButton
+            title="Products"
+            disabled={loading}
+            columns={[
+              { label: "Product", value: products.map((product) => product.name) },
+              { label: "Category", value: products.map((product) => typeof product.category === "string" ? product.category : product.category?.name ?? "—") },
+              { label: "Price (INR)", value: products.map((product) => product.price) },
+              { label: "Compare at (INR)", value: products.map((product) => product.compareAtPrice ?? "—") },
+              { label: "Stock", value: products.map((product) => product.stock) },
+              { label: "Featured", value: products.map((product) => product.isFeatured ? "Yes" : "No") },
+              { label: "Status", value: products.map((product) => product.isActive ? "Active" : "Hidden") },
+              { label: "Tags", value: products.map((product) => product.tags.join(", ")) },
+              { label: "Added", value: products.map((product) => formatDateTime(product.createdAt)) },
+            ]}
+          />
+          <Link
+            to="/products/new"
+            className="flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-ink hover:bg-brand-700"
+          >
+            <Plus className="h-4 w-4" /> Add product
+          </Link>
+        </div>
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white overflow-x-auto">

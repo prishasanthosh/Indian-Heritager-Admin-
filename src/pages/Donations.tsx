@@ -3,6 +3,8 @@ import { toast } from "sonner";
 import { IndianRupee } from "lucide-react";
 import { api, getErrorMessage } from "../lib/api";
 import type { Donation } from "../lib/types";
+import { GeneratePdfButton } from "../components/GeneratePdfButton";
+import { formatDateTime } from "../lib/pdf";
 
 const statusColor: Record<Donation["paymentStatus"], string> = {
   pending: "bg-amber-100 text-amber-700",
@@ -42,8 +44,24 @@ export function Donations() {
     <div className="p-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold text-slate-900">Donations</h1>
-        <div className="flex items-center gap-1.5 rounded-lg bg-brand-50 px-4 py-2 text-accent font-semibold">
-          <IndianRupee className="h-4 w-4" /> {totalRaised.toLocaleString("en-IN")} raised
+        <div className="flex items-center gap-3">
+          <GeneratePdfButton
+            title="Donations"
+            disabled={loading}
+            columns={[
+              { label: "Donor", value: donations.map((donation) => donation.donorName) },
+              { label: "Email", value: donations.map((donation) => donation.donorEmail) },
+              { label: "Phone", value: donations.map((donation) => donation.donorPhone) },
+              { label: "Amount (INR)", value: donations.map((donation) => donation.amount) },
+              { label: "Purpose", value: donations.map((donation) => donation.projectName) },
+              { label: "Recurring", value: donations.map((donation) => donation.isRecurring ? "Yes" : "No") },
+              { label: "Payment status", value: donations.map((donation) => donation.paymentStatus) },
+              { label: "Received", value: donations.map((donation) => formatDateTime(donation.createdAt)) },
+            ]}
+          />
+          <div className="flex items-center gap-1.5 rounded-lg bg-brand-50 px-4 py-2 text-accent font-semibold">
+            <IndianRupee className="h-4 w-4" /> {totalRaised.toLocaleString("en-IN")} raised
+          </div>
         </div>
       </div>
 

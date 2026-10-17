@@ -3,6 +3,8 @@ import { toast } from "sonner";
 import { api, getErrorMessage } from "../lib/api";
 import type { User } from "../lib/types";
 import { useAuth } from "../context/AuthContext";
+import { GeneratePdfButton } from "../components/GeneratePdfButton";
+import { formatDateTime } from "../lib/pdf";
 
 export function Users() {
   const { user: me } = useAuth();
@@ -31,12 +33,25 @@ export function Users() {
     <div className="p-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold text-slate-900">Users</h1>
-        <input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Search by name or email"
-          className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm w-64"
-        />
+        <div className="flex items-center gap-2">
+          <GeneratePdfButton
+            title="Users"
+            disabled={loading}
+            columns={[
+              { label: "Name", value: users.map((user) => user.name) },
+              { label: "Email", value: users.map((user) => user.email) },
+              { label: "Phone", value: users.map((user) => user.phone || "—") },
+              { label: "Role", value: users.map((user) => user.role) },
+              { label: "Joined", value: users.map((user) => formatDateTime(user.createdAt)) },
+            ]}
+          />
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search by name or email"
+            className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm w-64"
+          />
+        </div>
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white overflow-x-auto">
@@ -69,7 +84,7 @@ export function Users() {
                     <option value="admin">admin</option>
                   </select>
                 </td>
-                <td className="px-5 py-3 text-slate-500">{new Date(u.createdAt).toLocaleDateString("en-IN")}</td>
+                <td className="px-5 py-3 text-slate-500">{formatDateTime(u.createdAt)}</td>
               </tr>
             ))}
           </tbody>

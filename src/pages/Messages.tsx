@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { api, getErrorMessage } from "../lib/api";
 import type { ContactMessage } from "../lib/types";
+import { GeneratePdfButton } from "../components/GeneratePdfButton";
+import { formatDateTime } from "../lib/pdf";
 
 const statusColor: Record<ContactMessage["status"], string> = {
   new: "bg-amber-100 text-amber-700",
@@ -31,7 +33,21 @@ export function Messages() {
 
   return (
     <div className="p-8">
-      <h1 className="text-xl font-bold text-slate-900 mb-6">Contact messages</h1>
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <h1 className="text-xl font-bold text-slate-900">Contact messages</h1>
+        <GeneratePdfButton
+          title="Contact Messages"
+          disabled={loading}
+          columns={[
+            { label: "Received", value: messages.map((message) => formatDateTime(message.createdAt)) },
+            { label: "Name", value: messages.map((message) => message.name) },
+            { label: "Email", value: messages.map((message) => message.email) },
+            { label: "Subject", value: messages.map((message) => message.subject) },
+            { label: "Message", value: messages.map((message) => message.message) },
+            { label: "Status", value: messages.map((message) => message.status) },
+          ]}
+        />
+      </div>
 
       <div className="space-y-3">
         {loading && <div className="text-slate-400 text-sm">Loading…</div>}
@@ -54,7 +70,7 @@ export function Messages() {
               </select>
             </div>
             <p className="mt-3 text-sm text-slate-700 whitespace-pre-line">{m.message}</p>
-            <div className="mt-2 text-xs text-slate-400">{new Date(m.createdAt).toLocaleString("en-IN")}</div>
+            <div className="mt-2 text-xs text-slate-400">Received: {formatDateTime(m.createdAt)}</div>
           </div>
         ))}
       </div>
