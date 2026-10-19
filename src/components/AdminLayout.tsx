@@ -15,6 +15,7 @@ import {
   BookOpen,
   BookMarked,
   ListChecks,
+  KeyRound,
   Menu,
   X,
 } from "lucide-react";
@@ -35,6 +36,7 @@ const nav = [
   { to: "/volunteers", label: "Volunteers", icon: HandHeart },
   { to: "/newsletter", label: "Newsletter", icon: Send },
   { to: "/users", label: "Users", icon: Users },
+  { to: "/account", label: "Account settings", icon: KeyRound },
 ];
 
 export function AdminLayout() {

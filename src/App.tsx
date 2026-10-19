@@ -17,6 +17,7 @@ import { Newsletter } from "./pages/Newsletter";
 import { BookDonations } from "./pages/BookDonations";
 import { BookRequests } from "./pages/BookRequests";
 import { Projects } from "./pages/Projects";
+import { Account } from "./pages/Account";
 
 export default function App() {
   return (
@@ -45,6 +46,7 @@ export default function App() {
             <Route path="/volunteers" element={<VolunteerApplications />} />
             <Route path="/newsletter" element={<Newsletter />} />
             <Route path="/users" element={<Users />} />
+            <Route path="/account" element={<Account />} />
           </Route>
         </Routes>
       </BrowserRouter>

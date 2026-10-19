@@ -52,8 +52,8 @@ export function Orders() {
             columns={[
               { label: "Order", value: orders.map((order) => `#${order._id.slice(-8).toUpperCase()}`) },
               { label: "Placed", value: orders.map((order) => formatDateTime(order.createdAt)) },
-              { label: "Customer", value: orders.map((order) => typeof order.user === "object" ? order.user.name : "—") },
-              { label: "Email", value: orders.map((order) => typeof order.user === "object" ? order.user.email : "—") },
+              { label: "Customer", value: orders.map((order) => typeof order.user === "object" && order.user !== null ? order.user.name : "—") },
+              { label: "Email", value: orders.map((order) => typeof order.user === "object" && order.user !== null ? order.user.email : "—") },
               { label: "Items", value: orders.map((order) => order.items.map((item) => `${item.name} × ${item.quantity}`).join(", ")) },
               { label: "Total (INR)", value: orders.map((order) => order.total) },
               { label: "Payment", value: orders.map((order) => `${order.paymentMethod} · ${order.paymentStatus}`) },
@@ -92,7 +92,7 @@ export function Orders() {
               <Fragment key={o._id}>
                 <tr className="hover:bg-slate-50 cursor-pointer" onClick={() => setExpanded(expanded === o._id ? null : o._id)}>
                   <td className="px-5 py-3 font-medium text-slate-800">#{o._id.slice(-8).toUpperCase()}</td>
-                  <td className="px-5 py-3 text-slate-600">{typeof o.user === "object" ? o.user.name : "—"}</td>
+                  <td className="px-5 py-3 text-slate-600">{typeof o.user === "object" && o.user !== null ? o.user.name : "—"}</td>
                   <td className="px-5 py-3 text-slate-800 font-medium">₹{o.total.toLocaleString("en-IN")}</td>
                   <td className="px-5 py-3 text-slate-600 uppercase text-xs">{o.paymentMethod} · {o.paymentStatus}</td>
                   <td className="px-5 py-3" onClick={(e) => e.stopPropagation()}>

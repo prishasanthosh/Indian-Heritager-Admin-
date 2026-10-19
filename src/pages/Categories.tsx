@@ -8,7 +8,11 @@ import { GeneratePdfButton } from "../components/GeneratePdfButton";
 export function Categories() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [name, setName] = useState("");
+  const [filter, setFilter] = useState("");
   const [saving, setSaving] = useState(false);
+  const filteredCategories = categories.filter((category) =>
+    `${category.name} ${category.slug} ${category.description ?? ""}`.toLowerCase().includes(filter.trim().toLowerCase())
+  );
 
   const load = () => api.get("/categories").then(({ data }) => setCategories(data.categories));
 
@@ -45,17 +49,26 @@ export function Categories() {
 
   return (
     <div className="p-8 max-w-xl">
-      <div className="mb-6 flex items-center justify-between gap-4">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-xl font-bold text-slate-900">Categories</h1>
         <GeneratePdfButton
           title="Categories"
           columns={[
-            { label: "Name", value: categories.map((category) => category.name) },
-            { label: "Slug", value: categories.map((category) => category.slug) },
-            { label: "Description", value: categories.map((category) => category.description || "—") },
+            { label: "Name", value: filteredCategories.map((category) => category.name) },
+            { label: "Slug", value: filteredCategories.map((category) => category.slug) },
+            { label: "Description", value: filteredCategories.map((category) => category.description || "—") },
           ]}
         />
       </div>
+
+      <input
+        type="search"
+        value={filter}
+        onChange={(event) => setFilter(event.target.value)}
+        placeholder="Filter categories by name or slug"
+        aria-label="Filter categories by name or slug"
+        className="mb-6 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand-500"
+      />
 
       <form onSubmit={create} className="flex gap-2 mb-6">
         <input
@@ -74,8 +87,12 @@ export function Categories() {
       </form>
 
       <div className="rounded-xl border border-slate-200 bg-white divide-y divide-slate-100">
-        {categories.length === 0 && <div className="px-5 py-6 text-sm text-slate-400">No categories yet.</div>}
-        {categories.map((c) => (
+        {filteredCategories.length === 0 && (
+          <div className="px-5 py-6 text-sm text-slate-400">
+            {categories.length === 0 ? "No categories yet." : "No categories match this filter."}
+          </div>
+        )}
+        {filteredCategories.map((c) => (
           <div key={c._id} className="flex items-center justify-between px-5 py-3">
             <span className="text-sm font-medium text-slate-800">{c.name}</span>
             <button onClick={() => remove(c._id, c.name)} className="grid h-8 w-8 place-items-center rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-600">

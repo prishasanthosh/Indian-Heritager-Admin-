@@ -9,7 +9,17 @@ import { formatDateTime } from "../lib/pdf";
 
 export function Products() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [filter, setFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const [loading, setLoading] = useState(true);
+  const categoryNames = Array.from(
+    new Set(products.map((product) => typeof product.category === "string" ? product.category : product.category?.name).filter((name): name is string => Boolean(name)))
+  ).sort((a, b) => a.localeCompare(b));
+  const filteredProducts = products.filter((product) => {
+    const categoryName = typeof product.category === "string" ? product.category : product.category?.name ?? "";
+    const matchesSearch = `${product.name} ${product.slug} ${categoryName}`.toLowerCase().includes(filter.trim().toLowerCase());
+    return matchesSearch && (!categoryFilter || categoryName === categoryFilter);
+  });
 
   const load = () => {
     setLoading(true);
@@ -41,15 +51,15 @@ export function Products() {
             title="Products"
             disabled={loading}
             columns={[
-              { label: "Product", value: products.map((product) => product.name) },
-              { label: "Category", value: products.map((product) => typeof product.category === "string" ? product.category : product.category?.name ?? "—") },
-              { label: "Price (INR)", value: products.map((product) => product.price) },
-              { label: "Compare at (INR)", value: products.map((product) => product.compareAtPrice ?? "—") },
-              { label: "Stock", value: products.map((product) => product.stock) },
-              { label: "Featured", value: products.map((product) => product.isFeatured ? "Yes" : "No") },
-              { label: "Status", value: products.map((product) => product.isActive ? "Active" : "Hidden") },
-              { label: "Tags", value: products.map((product) => product.tags.join(", ")) },
-              { label: "Added", value: products.map((product) => formatDateTime(product.createdAt)) },
+              { label: "Product", value: filteredProducts.map((product) => product.name) },
+              { label: "Category", value: filteredProducts.map((product) => typeof product.category === "string" ? product.category : product.category?.name ?? "—") },
+              { label: "Price (INR)", value: filteredProducts.map((product) => product.price) },
+              { label: "Compare at (INR)", value: filteredProducts.map((product) => product.compareAtPrice ?? "—") },
+              { label: "Stock", value: filteredProducts.map((product) => product.stock) },
+              { label: "Featured", value: filteredProducts.map((product) => product.isFeatured ? "Yes" : "No") },
+              { label: "Status", value: filteredProducts.map((product) => product.isActive ? "Active" : "Hidden") },
+              { label: "Tags", value: filteredProducts.map((product) => product.tags.join(", ")) },
+              { label: "Added", value: filteredProducts.map((product) => formatDateTime(product.createdAt)) },
             ]}
           />
           <Link
@@ -59,6 +69,26 @@ export function Products() {
             <Plus className="h-4 w-4" /> Add product
           </Link>
         </div>
+      </div>
+
+      <div className="mb-6 flex flex-wrap gap-3">
+        <input
+          type="search"
+          value={filter}
+          onChange={(event) => setFilter(event.target.value)}
+          placeholder="Filter products by name or slug"
+          aria-label="Filter products by name or slug"
+          className="min-w-60 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand-500"
+        />
+        <select
+          value={categoryFilter}
+          onChange={(event) => setCategoryFilter(event.target.value)}
+          aria-label="Filter products by category"
+          className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
+        >
+          <option value="">All categories</option>
+          {categoryNames.map((categoryName) => <option key={categoryName} value={categoryName}>{categoryName}</option>)}
+        </select>
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white overflow-x-auto">
@@ -76,10 +106,10 @@ export function Products() {
             {loading && (
               <tr><td colSpan={5} className="px-5 py-8 text-center text-slate-400">Loading…</td></tr>
             )}
-            {!loading && products.length === 0 && (
-              <tr><td colSpan={5} className="px-5 py-8 text-center text-slate-400">No products yet.</td></tr>
+            {!loading && filteredProducts.length === 0 && (
+              <tr><td colSpan={5} className="px-5 py-8 text-center text-slate-400">{products.length === 0 ? "No products yet." : "No products match these filters."}</td></tr>
             )}
-            {products.map((p) => (
+            {filteredProducts.map((p) => (
               <tr key={p._id} className="hover:bg-slate-50">
                 <td className="px-5 py-3">
                   <div className="flex items-center gap-3">

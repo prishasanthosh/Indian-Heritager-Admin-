@@ -8,7 +8,11 @@ import { GeneratePdfButton } from "../components/GeneratePdfButton";
 export function Projects() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [name, setName] = useState("");
+  const [filter, setFilter] = useState("");
   const [saving, setSaving] = useState(false);
+  const filteredProjects = projects.filter((project) =>
+    `${project.name} ${project.slug}`.toLowerCase().includes(filter.trim().toLowerCase())
+  );
 
   const load = () => api.get("/projects/all").then(({ data }) => setProjects(data.projects));
 
@@ -54,19 +58,28 @@ export function Projects() {
 
   return (
     <div className="p-8 max-w-xl">
-      <div className="mb-2 flex items-center justify-between gap-4">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-xl font-bold text-slate-900">Donation purposes</h1>
         <GeneratePdfButton
           title="Donation Purposes"
           columns={[
-            { label: "Name", value: projects.map((project) => project.name) },
-            { label: "Slug", value: projects.map((project) => project.slug) },
-            { label: "Status", value: projects.map((project) => project.isActive ? "Active" : "Hidden") },
-            { label: "Sort order", value: projects.map((project) => project.sortOrder) },
+            { label: "Name", value: filteredProjects.map((project) => project.name) },
+            { label: "Slug", value: filteredProjects.map((project) => project.slug) },
+            { label: "Status", value: filteredProjects.map((project) => project.isActive ? "Active" : "Hidden") },
+            { label: "Sort order", value: filteredProjects.map((project) => project.sortOrder) },
           ]}
         />
       </div>
       <p className="text-sm text-slate-500 mb-6">Drives the "Donation purpose" dropdown on the public /donate page — only active purposes appear there.</p>
+
+      <input
+        type="search"
+        value={filter}
+        onChange={(event) => setFilter(event.target.value)}
+        placeholder="Filter donation purposes by name or slug"
+        aria-label="Filter donation purposes by name or slug"
+        className="mb-6 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand-500"
+      />
 
       <form onSubmit={create} className="flex gap-2 mb-6">
         <input
@@ -85,8 +98,12 @@ export function Projects() {
       </form>
 
       <div className="rounded-xl border border-slate-200 bg-white divide-y divide-slate-100">
-        {projects.length === 0 && <div className="px-5 py-6 text-sm text-slate-400">No donation purposes yet.</div>}
-        {projects.map((p) => (
+        {filteredProjects.length === 0 && (
+          <div className="px-5 py-6 text-sm text-slate-400">
+            {projects.length === 0 ? "No donation purposes yet." : "No donation purposes match this filter."}
+          </div>
+        )}
+        {filteredProjects.map((p) => (
           <div key={p._id} className="flex items-center justify-between px-5 py-3">
             <span className="text-sm font-medium text-slate-800">{p.name}</span>
             <div className="flex items-center gap-3">

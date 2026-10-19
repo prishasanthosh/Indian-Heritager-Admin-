@@ -56,7 +56,7 @@ export type OrderStatus = "pending" | "processing" | "shipped" | "delivered" | "
 
 export type Order = {
   _id: string;
-  user: { _id: string; name: string; email: string } | string;
+  user: { _id: string; name: string; email: string } | string | null;
   items: OrderItem[];
   shippingAddress: ShippingAddress;
   itemsTotal: number;
@@ -93,6 +93,7 @@ export type VolunteerApplication = {
 export type NewsletterSubscriber = {
   _id: string;
   email: string;
+  status: "subscribed" | "unsubscribed";
   createdAt: string;
 };
 
