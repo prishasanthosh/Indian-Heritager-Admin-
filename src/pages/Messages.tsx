@@ -22,7 +22,10 @@ export function Messages() {
     [messages, statusFilter]
   );
   const selectedMessages = useMemo(
-    () => messages.filter((message) => selectedIds.includes(message._id)),
+    () => selectedIds.flatMap((id) => {
+      const message = messages.find((item) => item._id === id);
+      return message ? [message] : [];
+    }),
     [messages, selectedIds]
   );
   const allVisibleSelected = visibleMessages.length > 0
@@ -84,7 +87,10 @@ export function Messages() {
           <select
             id="message-status-filter"
             value={statusFilter}
-            onChange={(event) => setStatusFilter(event.target.value as "" | ContactMessage["status"])}
+            onChange={(event) => {
+              setStatusFilter(event.target.value as "" | ContactMessage["status"]);
+              setSelectedIds([]);
+            }}
             className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
           >
             <option value="">All statuses</option>
@@ -110,6 +116,14 @@ export function Messages() {
             disabled={loading || selectedMessages.length === 0}
             columns={pdfColumns(selectedMessages)}
           />
+          <button
+            type="button"
+            onClick={() => setSelectedIds([])}
+            disabled={selectedIds.length === 0}
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+          >
+            Clear selection
+          </button>
         </div>
       </div>
 
@@ -117,15 +131,18 @@ export function Messages() {
         {loading && <div className="text-slate-400 text-sm">Loading…</div>}
         {!loading && messages.length === 0 && <div className="text-slate-400 text-sm">No messages yet.</div>}
         {!loading && messages.length > 0 && (
-          <label className="flex w-fit items-center gap-2 text-sm text-slate-600">
-            <input
-              type="checkbox"
-              checked={allVisibleSelected}
-              onChange={toggleAllVisible}
-              aria-label="Select all visible messages"
-            />
-            Select all visible ({visibleMessages.length})
-          </label>
+          <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
+            <label className="flex w-fit items-center gap-2">
+              <input
+                type="checkbox"
+                checked={allVisibleSelected}
+                onChange={toggleAllVisible}
+                aria-label="Select all visible messages"
+              />
+              Select all visible ({visibleMessages.length})
+            </label>
+            <span aria-live="polite">{selectedMessages.length} message{selectedMessages.length === 1 ? "" : "s"} selected</span>
+          </div>
         )}
         {!loading && visibleMessages.length === 0 && messages.length > 0 && (
           <div className="text-slate-400 text-sm">No messages with this status.</div>
