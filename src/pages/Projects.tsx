@@ -66,7 +66,7 @@ export function Projects() {
           ]}
         />
       </div>
-      <p className="text-sm text-slate-500 mb-6">Drives the "Donation purpose" dropdown on the public /give page — only active purposes appear there.</p>
+      <p className="text-sm text-slate-500 mb-6">Drives the "Donation purpose" dropdown on the public /donate page — only active purposes appear there.</p>
 
       <form onSubmit={create} className="flex gap-2 mb-6">
         <input
