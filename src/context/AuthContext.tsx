@@ -20,7 +20,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { data } = await api.get("/auth/me");
       setUser(data.user.role === "admin" ? data.user : null);
     } catch {
-      setUser(null);
+      try {
+        await api.post("/auth/refresh");
+        const { data } = await api.get("/auth/me");
+        setUser(data.user.role === "admin" ? data.user : null);
+      } catch {
+        setUser(null);
+      }
     }
   };
 

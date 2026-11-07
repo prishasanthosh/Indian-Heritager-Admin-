@@ -1,6 +1,8 @@
 import axios from "axios";
 
-export const API_URL = import.meta.env.VITE_API_URL ?? "https://heritager-backend.onrender.com/api";
+export const API_URL = import.meta.env.DEV
+  ? (import.meta.env.VITE_API_URL ?? "http://localhost:5000/api")
+  : "/api";
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -15,7 +17,17 @@ api.interceptors.response.use(
   (res) => res,
   async (error) => {
     const original = error.config;
-    if (error.response?.status === 401 && !original._retry && !original.url?.includes("/auth/")) {
+    const url = String(original?.url ?? "");
+    const isAuthBootstrap = url.includes("/auth/me");
+    const canRefresh =
+      error.response?.status === 401 &&
+      !original._retry &&
+      !url.includes("/auth/admin/login") &&
+      !url.includes("/auth/login") &&
+      !url.includes("/auth/logout") &&
+      !url.includes("/auth/refresh");
+
+    if (canRefresh || (isAuthBootstrap && error.response?.status === 401 && !original._retry)) {
       original._retry = true;
       try {
         refreshPromise ??= api.post("/auth/refresh").then(() => undefined).finally(() => {
